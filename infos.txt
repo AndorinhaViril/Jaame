@@ -1,0 +1,3 @@
+Versões Utilizadas:
+Python: 3.8.2
+Pygame: 1.9.6
