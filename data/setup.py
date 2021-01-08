@@ -1,3 +1,6 @@
+'''
+Configurações basicas, deve ser movido ao arquivo loop
+'''
 __author__ = "AndorinhaViril"
 
 import os

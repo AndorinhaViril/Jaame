@@ -1,3 +1,6 @@
+'''
+teste de animação /// nada de importante.
+'''
 import pygame as pg
 import os
 
@@ -9,7 +12,7 @@ screen = pg.display.set_mode((800,600))
 display = pg.display.get_surface()
 timing = 10
 cont_sprites = 0
-WHITE = (90, 0, 255)
+WHITE = (90, 90, 0)
 done = False
 clock = pg.time.Clock()
 sprites = []
@@ -48,6 +51,7 @@ def update():
             cont_sprites += 1
         timing = 10
         sprite = sprites[cont_sprites]
+        print(f'{cont_sprites}')
     else:
         timing -= 1
         

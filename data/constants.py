@@ -1,4 +1,7 @@
 __author__ = "AndorinhaViril"
+'''
+variaveis de de uso mutuo
+'''
 #configs
 SCREEN_HEIGHT = 480
 SCREEN_WIDTH = 854

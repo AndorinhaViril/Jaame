@@ -1,3 +1,6 @@
+'''
+Geração de fases de forma aleatória, (pensar em uma forma de criar estruturas "padrões")
+'''
 import random
 class cell():
     def __init__(self, pos):

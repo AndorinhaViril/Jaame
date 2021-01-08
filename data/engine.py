@@ -1,9 +1,11 @@
+'''
+Todos os objetos que possuem colizão, movimento ou que tem que estar na tela durante o gameplay
+'''
 import pygame as pg
 import os
 import data.constants as c
 import random as r
 class player():
-
     def __init__(self):
         #variaveis
         self.height = 55
@@ -57,7 +59,7 @@ class player():
         self.y = self.collision.y-12
         self.dead = c.ALIVE
         self.speedy,self.speed = 0,0
-    def swap_state(self, state):
+    def swap_state(self, state):#não utilizado por apresentar muita inconsistencia
         if self.state != c.FALL:
             if self.state == c.JUMP or self.state == c.WALKJ:
                 if state == c.FALL or state == c.WALK:

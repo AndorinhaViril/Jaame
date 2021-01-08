@@ -1,3 +1,6 @@
+'''
+Toda a interface e HUD, assim como seus eventos
+'''
 import pygame as pg
 import data.constants as c
 import os

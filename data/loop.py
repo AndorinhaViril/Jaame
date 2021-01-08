@@ -1,3 +1,6 @@
+'''
+controla o que deve e quando será processado/executado
+'''
 __author__ = "AnddorinhaViril"
 import random as r
 import data.setup
@@ -109,10 +112,9 @@ class Control(object):
             self.credits.event((mp,pg.mouse.get_pressed()),pg.key.get_pressed())
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                
                 self.done = True
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_r:
+                if event.key == pg.K_r:#apenas para fim de testes
                     self.restart()
                 if event.key == pg.K_ESCAPE:
                     if self.state == c.PLAY:
