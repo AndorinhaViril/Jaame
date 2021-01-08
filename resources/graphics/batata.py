@@ -1,3 +1,7 @@
+'''
+tem como unico proposito teste de "fisica e animação", assim como de funcionalidades.
+'''
+
 import random as r
 import pygame as pg
 

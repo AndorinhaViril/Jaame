@@ -1,3 +1,7 @@
+'''
+utilizado para ver a difereça de performance entre um e varios arquivos.
+    resultado: se prova mais leve(roda com mais fps) mas é mais instável.
+'''
 import pygame as pg
 import os
 import random
@@ -10,7 +14,7 @@ SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
 DISPLAY_HEIGHT = 480#720#
 DISPLAY_WIDTH = 854#1280#
 DISPLAY_SIZE = (DISPLAY_WIDTH,DISPLAY_HEIGHT)
-FPS = 30
+FPS = 0
 TITLE = "Jaame"
 BLOCK_SIZE = (70,70)
 DRAW_DISTANCE_X = 7

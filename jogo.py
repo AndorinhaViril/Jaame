@@ -1,3 +1,7 @@
+'''
+começo de "tudo"
+'''
+
 import pygame
 from data import loop
 try:
