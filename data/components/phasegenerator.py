@@ -77,6 +77,35 @@ class phase():
     def setCellType(self,cell,tipe):
         cell.type = tipe
         self.updateCell(cell)
+    def set_collision(self):
+        for line in range(self.width):
+            for column in range(self.height):
+                #print(f'||{line}||{column}||')
+                cll = self.matriz[column][line]
+
+                if line == 0 or column == 0:
+                    self.setCellType(cll,self.format_cell_type(cll.type,'9',3))
+                    continue
+                elif line == self.width-1 or column == self.height-1:
+                    self.setCellType(cll,self.format_cell_type(cll.type,'9',3))
+                    continue
+                if cll.type[0] == '9':
+                    aux = [True,True,True,True]
+                    if cll.hasNear['n']:
+                        if cll.n.type[0] == '0':
+                            aux[0] = False
+                    if cll.hasNear['s']:
+                        if cll.s.type[0] == '0':
+                            aux[1] = False
+                    if cll.hasNear['w']:
+                        if cll.w.type[0] == '0':
+                            aux[2] = False
+                    if cll.hasNear['e']:
+                        if cll.e.type[0] == '0':
+                            aux[3] = False 
+                    if False in aux:
+                        self.setCellType(cll,self.format_cell_type(cll.type,'9',3))
+                        
     def updateCell(self,cell):
         self.matriz[cell.pos[1]][cell.pos[0]] = cell
         #print(cell.type)
@@ -94,6 +123,7 @@ class phase():
             self.random_path(self.findCellByPosition(start),self.findCellByPosition(end),False)
         #print()
         self.post_processing() 
+        self.set_collision()
         return self.write_phase()
     def random_path(self,start,end,is_initial):
         aux = start
@@ -247,8 +277,8 @@ class phase():
         self.vertically_widen()
         self.setCellType(self.findCellByPosition(self.spawn),'1000')
         self.setCellType(self.findCellByPosition(self.exit),'8000')
-        self.setCellType(self.findCellByPosition((self.spawn[0],self.spawn[1]+1)),'9000')
-        self.setCellType(self.findCellByPosition((self.exit[0],self.exit[1]+1)),'9000')
+        self.setCellType(self.findCellByPosition((self.spawn[0],self.spawn[1]+1)),'9009')
+        self.setCellType(self.findCellByPosition((self.exit[0],self.exit[1]+1)),'9009')
         if not self.verify_path():
             self.reDoIt()
         self.set_traps()
@@ -324,10 +354,10 @@ class phase():
                     if rand.n.type[1] != 2:
                         if rand.hasNear['e']:
                             if rand.e.type[0] =='0':
-                                rand.type = self.format_cell_type(rand.type,'3',3)
+                                rand.type = self.format_cell_type(rand.type,'3',2)
                         if rand.hasNear['w']:
                             if rand.w.type[0] =='0':
-                                rand.type = self.format_cell_type(rand.type,'2',3)
+                                rand.type = self.format_cell_type(rand.type,'2',2)
                 cells.remove(rand)
                 if len(cells) == 0:
                     break
@@ -362,7 +392,8 @@ class phase():
         for cont in range(0,self.height):
             for contItem in range(0,self.width):
                 self.matrizvisual[cont][contItem] = self.matriz[cont][contItem].type
-                #print(self.matrizvisual[cont][contItem])
+                #print(f'{self.matrizvisual[cont][contItem][3]}',end=' ')
+            #print('')
         if self.write:#praticamente inutil    
             text_file = open("data\components\saida.txt", "w")
             for i in self.matrizvisual:

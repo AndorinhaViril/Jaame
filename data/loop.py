@@ -3,17 +3,19 @@ controla o que deve e quando será processado/executado
 '''
 __author__ = "AnddorinhaViril"
 import random as r
-import data.setup
 import os
 import data.menu as m
+import data.animation as a
 from data.engine import *
 import data.constants as c
 from data.components import phasegenerator as phg
 
 class Control(object):
     def __init__(self, caption):
-        self.screen = pg.Surface(c.DISPLAY_SIZE)
-        self.display = pg.display.get_surface()
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
+        pg.display.set_icon(pg.image.load(os.path.join('resources\graphics','player.png')))
+        self.screen = pg.Surface(c.SCREEN_SIZE)
+        self.display = pg.display.set_mode(c.DISPLAY_SIZE,pg.RESIZABLE)
         self.done = False
         self.camera = [0,0]
         self.clock = pg.time.Clock()
@@ -30,6 +32,7 @@ class Control(object):
         self.state = c.MENU
         self.player = player()
         self.phase = phg.phase()
+        self.animation = a.animation()
         self.plataform = None
         self.menu = m.menu()
         self.pause = m.pause()
@@ -55,12 +58,14 @@ class Control(object):
             self.screen.fill(c.BGCOLOR)
         else:
             self.screen.fill(c.BGCOLORP)
+            #self.screen.blit(pg.transform.scale(pg.image.load(os.path.join('resources\graphics', 'dirt.png')),(854,480)),(0,0))
         if self.state == c.PLAY:
             self.player.draw(self.screen,self.camera)
             self.plataform.draw(self.screen,self.camera)
             self.hud.draw(self.screen,(self.player.x//70,self.player.y//70),(self.plataform.end.x//1,self.plataform.end.y//1),self.player.dead)
         elif self.state == c.MENU:
             self.menu.draw(self.screen)
+            self.animation.menu(self.screen)
         elif self.state == c.PAUSE:
             self.pause.draw(self.screen)
         elif self.state == c.LOAD:
@@ -69,20 +74,31 @@ class Control(object):
             self.config.draw(self.screen)
         elif self.state == c.IMPIKA:
             self.credits.draw(self.screen)
-        self.display.blit(pg.transform.scale(self.screen,self.display.get_size()),(0,0))
+        #self.display.blit(pg.transform.scale2x(self.screen),(0,0))
+        if self.screen.get_size() != self.display.get_size():
+            self.display.blit(pg.transform.scale(self.screen,self.display.get_size()),(0,0))
+        else:
+            self.display.blit(self.screen,(0,0))
         pg.display.update()
     
     def cameramove(self):  
-        self.camera[0] += (self.player.x-self.camera[0]-c.DISPLAY_WIDTH/2)/2
-        if self.player.lookto == 'up':
-            self.camera[1] += (self.player.y-190-self.camera[1]-c.DISPLAY_HEIGHT/2)/2
-        elif self.player.lookto == 'down':
-            self.camera[1] += (self.player.y+210-self.camera[1]-c.DISPLAY_HEIGHT/2)/2
+        #print(f'{self.screen.get_size()} != {self.display.get_size()}')
+        if self.screen.get_size()[0] > self.display.get_size()[0]:
+            display_x = (c.DISPLAY_WIDTH+(c.SCREEN_WIDTH/2)/2)
+            display_y = (c.DISPLAY_HEIGHT+(c.SCREEN_HEIGHT/2)/2)
         else:
-            self.camera[1] += (self.player.y-self.camera[1]-c.DISPLAY_HEIGHT/2)/2
+            display_x = c.SCREEN_WIDTH/2
+            display_y = c.SCREEN_HEIGHT/2
+        self.camera[0] += (self.player.x-self.camera[0]-display_x)/2
+        if self.player.lookto == 'up':
+            self.camera[1] += (self.player.y-190-self.camera[1]-display_y)/2
+        elif self.player.lookto == 'down':
+            self.camera[1] += (self.player.y+210-self.camera[1]-display_y)/2
+        else:
+            self.camera[1] += (self.player.y-self.camera[1]-display_y)/2
         if self.player.on_end or self.new:
-            self.camera[0] += (self.player.x-self.camera[0]-c.DISPLAY_WIDTH/2)
-            self.camera[1] += (self.player.y-self.camera[1]-c.DISPLAY_HEIGHT/2)
+            self.camera[0] += (self.player.x-self.camera[0]-display_x)
+            self.camera[1] += (self.player.y-self.camera[1]-display_y)
     def event_loop(self):
         if self.state == c.PLAY:
             self.player.move(pg.key.get_pressed(),self.plataform.things_collide,self.plataform.phase)
@@ -124,13 +140,17 @@ class Control(object):
             if event.type == pg.VIDEORESIZE:
             # There's some code to add back window content here.
                 self.display = pg.display.set_mode((event.w, event.h),pg.RESIZABLE)
-                new_size = [self.display.get_size()[0]/2,self.display.get_size()[1]/2]
-                c.SCREEN_WIDTH = self.display.get_size()[0]
-                c.SCREEN_HEIGHT = self.display.get_size()[1]
-                
-##                self.screen  = pg.Surface(new_size)
-##                c.DISPLAY_WIDTH = new_size[0]
-##                c.DISPLAY_HEIGHT = new_size[1]
+                if self.display.get_size()[1] > 480:
+                    new_size = [self.display.get_size()[0]/2,self.display.get_size()[1]/2]
+                else:
+                    new_size = [self.display.get_size()[0],self.display.get_size()[1]]
+                c.SCREEN_WIDTH = new_size[0]
+                c.SCREEN_HEIGHT = new_size[1]
+                c.DISPLAY_SIZE = (self.display.get_size()[0],self.display.get_size()[1])
+                c.SCREEN_SIZE = (c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
+                self.screen = pg.Surface(c.SCREEN_SIZE)
+               # print(f'{c.SCREEN_WIDTH} - {c.SCREEN_HEIGHT} | {(event.w, event.h)}')
+                self.screen  = pg.Surface(new_size)
                 self.menu.start()
                 self.pause.start()
                 self.loading.start()
@@ -191,7 +211,9 @@ class Control(object):
     def restart(self):
         self.player.set_spawn(self.plataform.spawn)
     def main(self):
+        print(self.display.get_size())
         pg.mixer.init()
+        self.animation.load_sprites()
         self.menu.start()
         self.pause.start()
         self.loading.start()

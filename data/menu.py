@@ -186,8 +186,8 @@ class load_screen():
         self.y = 0
         self.points = []
         self.item = self.font_text.render('LOADING',True,c.BLACK)
-        self.x = c.DISPLAY_WIDTH-(self.item.get_width()*1.5)//1
-        self.y = c.DISPLAY_HEIGHT-self.item.get_height()
+        self.x = c.SCREEN_WIDTH-(self.item.get_width()*1.5)//1
+        self.y = c.SCREEN_HEIGHT-self.item.get_height()
         point = pg.Rect(self.x+self.item.get_width()+4,self.y+self.item.get_height()-7,2,2)
         point1 = pg.Rect(self.x+self.item.get_width()+8,self.y+self.item.get_height()-7,2,2)
         point2 = pg.Rect(self.x+self.item.get_width()+12,self.y+self.item.get_height()-7,2,2)
@@ -284,7 +284,7 @@ class credits():
         self.go_to = None
         self.can = True
     def draw(self,screen):
-        item = self.font_text.render('by AndorinhaViril  inc.',True,c.BLACK)
+        item = self.font_text.render('\n\nby AndorinhaViril  inc.',True,c.BLACK)
         screen.blit(item,((c.DISPLAY_WIDTH/2)-item.get_width()/2,0))
         if self.itens_tela is self.selected_item:
             item = self.font_text.render(self.item,True,c.BLACK)
@@ -334,7 +334,7 @@ class hud():
         self.heart = pg.image.load(os.path.join('resources\graphics', 'hart.png'))
     def draw(self,screen,player_pos,end_pos,status):
         if status == c.ALIVE:
-            item = self.font_text.render('{}, {} - {}, {}'.format(player_pos[0],player_pos[1],end_pos[0]//70,end_pos[1]//70),True,c.BLACK)
+            item = self.font_text.render('{}, {} | {}, {}'.format(player_pos[0],player_pos[1],end_pos[0]//70,end_pos[1]//70),True,c.BLACK)
             screen.blit(item,(50,0))
             screen.blit(self.heart,(0,0))
         else:
@@ -342,10 +342,10 @@ class hud():
             item2 = self.font_text.render('DIED',True,c.WHITE)
             item3 = self.font_text.render('PRESS R TO RESTART',True,c.WHITE)
             item4 = self.font_text.render('PRESS R TO RESTART',True,c.BLACK)
-            x = c.DISPLAY_WIDTH/2 - item.get_width()/2
-            y = c.DISPLAY_HEIGHT/2 - item.get_height()
-            x2 = c.DISPLAY_WIDTH/2 - item3.get_width()/2
-            y2 = c.DISPLAY_HEIGHT/2 + item.get_height()
+            x = c.SCREEN_WIDTH/2 - item.get_width()/2
+            y = c.SCREEN_HEIGHT/2 - item.get_height()
+            x2 = c.SCREEN_WIDTH/2 - item3.get_width()/2
+            y2 = c.SCREEN_HEIGHT/2 + item.get_height()
             screen.blit(item,  (x,y))
             screen.blit(item2, (x-2,y-2))
             screen.blit(item4, (x2,y2))
