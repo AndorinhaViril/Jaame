@@ -386,7 +386,8 @@ class plataform():
         
         for b in self.blocks:
             if b.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and b.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and b.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and b.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
-                self.things_collide.append(b)
+                if b.has_collision:
+                    self.things_collide.append(b)
                 self.things_draw.append(b)
         for s in self.saws:
             if s.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and s.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and s.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and s.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
@@ -425,14 +426,19 @@ class plataform():
                         b = block((cont_x,cont_y*self.height),c.BLOCK_SIZE,(cont_y,cont_x),True)
                     else:
                         b = block((cont_x*self.width,cont_y*self.height),c.BLOCK_SIZE,(cont_y,cont_x),True)
+                if a[3] == '9':
+                    #print('9')
+                    b.set_has_collision(True)
                 if a[0] == '9':
                     b.type = 2
                     self.blocks.append(b)
                 elif a[0] == '1':
                     self.spawn = b.collision
+                    b.set_has_collision(True)
                 elif a[0] == '8':
                     self.end = b.collision
                     b.type = 0
+                    b.set_has_collision(True)
                     self.blocks.append(b)
                 elif a[0] == '3':
                     b.type = 3
@@ -443,15 +449,17 @@ class plataform():
                     s.start()
                     self.saws.append(s)
                 elif a[1] =='2':
-                    if a[3] == '2':
+                    #print(f'canon {a}')
+                    if a[2] == '2':
                         ca = canon(2,b)
                         ca.start()
                         self.canons.append(ca)
-                    if a[3] == '3':
+                    if a[2] == '3':
                         ca = canon(3,b)
                         ca.start()
                         self.canons.append(ca)
                 elif a[1] == '6':
+                    #print(f'fly {a}')
                     f = fly(b)
                     self.flys.append(f)
                 cont_x+=1
@@ -469,7 +477,7 @@ class plataform():
         bl.type = 99
         self.blocks.append(bl)
 class block(pg.sprite.Sprite):
-    def __init__(self, xy, wh, pos,scalable):
+    def __init__(self, xy, wh, pos, scalable):
         #chama o construtor da classe mãe
         pg.sprite.Sprite.__init__(self)
         self.sprite = pg.image.load(os.path.join('resources\graphics', 'dirt.png'))
@@ -481,6 +489,7 @@ class block(pg.sprite.Sprite):
         self.x = xy[0]
         self.y = xy[1]
         self.collision = pg.Rect(self.x,self.y,self.width,self.height)
+        self.has_collision = False
     def set_xy(self,xy):
         self.x = xy[0]
         self.y = xy[1]
@@ -488,6 +497,8 @@ class block(pg.sprite.Sprite):
         screen.blit(self.sprite,(self.x-camera[0],self.y-camera[1]))
     def set_sprite(self,sprite):
         self.sprite = sprite
+    def set_has_collision(self, has_collision):
+        self.has_collision = has_collision
     def update(self,camera):
         pass
     
