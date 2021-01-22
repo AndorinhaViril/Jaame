@@ -3,17 +3,19 @@ controla o que deve e quando será processado/executado
 '''
 __author__ = "AnddorinhaViril"
 import random as r
+import pygame as pg
 import os
+import time
 import data.menu as m
 import data.animation as a
-from data.engine import *
+from data.engine import player, plataform
 import data.constants as c
 from data.components import phasegenerator as phg
 
 class Control(object):
     def __init__(self, caption):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        pg.display.set_icon(pg.image.load(os.path.join('resources\graphics','player.png')))
+        pg.display.set_icon(pg.image.load(os.path.join('resources\\graphics','player.png')))
         self.screen = pg.Surface(c.SCREEN_SIZE)
         self.display = pg.display.set_mode(c.DISPLAY_SIZE,pg.RESIZABLE)
         self.done = False
@@ -30,6 +32,7 @@ class Control(object):
         #self.state_name = None
         self.first_load = True
         self.state = c.MENU
+        self.timer = None
         self.player = player()
         self.phase = phg.phase()
         self.animation = a.animation()
@@ -37,6 +40,8 @@ class Control(object):
         self.menu = m.menu()
         self.pause = m.pause()
         self.loading = m.load_screen()
+        self.loadphase = m.load_phase()
+        self.savephase = m.save_phase()
         self.config = m.config()
         self.credits = m.credits()
         self.hud = m.hud()
@@ -62,12 +67,16 @@ class Control(object):
         if self.state == c.PLAY:
             self.player.draw(self.screen,self.camera)
             self.plataform.draw(self.screen,self.camera)
-            self.hud.draw(self.screen,(self.player.x//70,self.player.y//70),(self.plataform.end.x//1,self.plataform.end.y//1),self.player.dead)
+            self.hud.draw(self.screen,(self.player.x//70,self.player.y//70),(self.plataform.end.x//1,self.plataform.end.y//1),self.player.dead,self.player.num_death,(self.timer-time.time()))
         elif self.state == c.MENU:
             self.menu.draw(self.screen)
             self.animation.menu(self.screen)
         elif self.state == c.PAUSE:
             self.pause.draw(self.screen)
+        elif self.state == c.LPHASE:
+            self.loadphase.draw(self.screen)
+        elif self.state == c.SPHASE:
+            self.savephase.draw(self.screen)
         elif self.state == c.LOAD:
             self.loading.draw(self.screen)
         elif self.state == c.CONFIG:
@@ -82,7 +91,6 @@ class Control(object):
         pg.display.update()
     
     def cameramove(self):  
-        #print(f'{self.screen.get_size()} != {self.display.get_size()}')
         if self.screen.get_size()[0] > self.display.get_size()[0]:
             display_x = (c.DISPLAY_WIDTH+(c.SCREEN_WIDTH/2)/2)
             display_y = (c.DISPLAY_HEIGHT+(c.SCREEN_HEIGHT/2)/2)
@@ -99,33 +107,34 @@ class Control(object):
         if self.player.on_end or self.new:
             self.camera[0] += (self.player.x-self.camera[0]-display_x)
             self.camera[1] += (self.player.y-self.camera[1]-display_y)
+    def get_mouse_pos(self):
+        mp = []
+        p = pg.mouse.get_pos()
+        if c.SCREEN_ZOOM == 1:
+            mp.append(p[0])
+            mp.append(p[1])
+        elif c.SCREEN_ZOOM >= 2:
+            mp.append(p[0]*c.SCREEN_ZOOM)
+            mp.append(p[1]*c.SCREEN_ZOOM)
+        else:
+            mp.append(int(p[0]//c.SCREEN_ZOOM))
+            mp.append(int(p[1]//c.SCREEN_ZOOM))
+        return mp
     def event_loop(self):
         if self.state == c.PLAY:
             self.player.move(pg.key.get_pressed(),self.plataform.things_collide,self.plataform.phase)
         elif self.state == c.MENU:
-            mp = []
-            p = pg.mouse.get_pos()
-            mp.append(p[0])#//2)
-            mp.append(p[1])#//2)
-            self.menu.event((mp,pg.mouse.get_pressed()),pg.key.get_pressed())
+            self.menu.event((self.get_mouse_pos(),pg.mouse.get_pressed()),pg.key.get_pressed())
         elif self.state == c.PAUSE:
-            mp = []
-            p = pg.mouse.get_pos()
-            mp.append(p[0])#//2)
-            mp.append(p[1])#//2)
-            self.pause.event((mp,pg.mouse.get_pressed()),pg.key.get_pressed())
+            self.pause.event((self.get_mouse_pos(),pg.mouse.get_pressed()),pg.key.get_pressed())
+        elif self.state == c.LPHASE:
+            self.loadphase.event((self.get_mouse_pos(),pg.mouse.get_pressed()),pg.key.get_pressed())
+        elif self.state == c.SPHASE:
+            self.savephase.event((self.get_mouse_pos(),pg.mouse.get_pressed()),pg.key.get_pressed())
         elif self.state == c.CONFIG:
-            mp = []
-            p = pg.mouse.get_pos()
-            mp.append(p[0])#//2)
-            mp.append(p[1])#//2)
-            self.config.event((mp,pg.mouse.get_pressed()),pg.key.get_pressed())
+            self.config.event((self.get_mouse_pos(),pg.mouse.get_pressed()),pg.key.get_pressed())
         elif self.state == c.IMPIKA:
-            mp = []
-            p = pg.mouse.get_pos()
-            mp.append(p[0])#//2)
-            mp.append(p[1])#//2)
-            self.credits.event((mp,pg.mouse.get_pressed()),pg.key.get_pressed())
+            self.credits.event((self.get_mouse_pos(),pg.mouse.get_pressed()),pg.key.get_pressed())
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.done = True
@@ -140,33 +149,34 @@ class Control(object):
             if event.type == pg.VIDEORESIZE:
             # There's some code to add back window content here.
                 self.display = pg.display.set_mode((event.w, event.h),pg.RESIZABLE)
-                if self.display.get_size()[1] > 480:
-                    new_size = [self.display.get_size()[0]/2,self.display.get_size()[1]/2]
-                else:
+                if c.SCREEN_ZOOM == 1:
                     new_size = [self.display.get_size()[0],self.display.get_size()[1]]
+                else:
+                    new_size = [self.display.get_size()[0]*c.SCREEN_ZOOM,self.display.get_size()[1]*c.SCREEN_ZOOM]
                 c.SCREEN_WIDTH = new_size[0]
                 c.SCREEN_HEIGHT = new_size[1]
                 c.DISPLAY_SIZE = (self.display.get_size()[0],self.display.get_size()[1])
                 c.SCREEN_SIZE = (c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
                 self.screen = pg.Surface(c.SCREEN_SIZE)
-               # print(f'{c.SCREEN_WIDTH} - {c.SCREEN_HEIGHT} | {(event.w, event.h)}')
+                print(f'{c.SCREEN_SIZE}')
                 self.screen  = pg.Surface(new_size)
                 self.menu.start()
                 self.pause.start()
                 self.loading.start()
                 self.credits.start()
                 self.config.start()
-                
+                self.loadphase.start()
+                self.savephase.start()
     def next_phase(self):
         if self.player.on_end and self.state == c.PLAY or self.new:
             if not self.new:
-                som = pg.mixer.Sound('resources\musics\win.ogg')
+                som = pg.mixer.Sound('resources\\musics\\win.ogg')
                 som.play()
             self.new = False
             stt = self.state
             self.state = c.LOAD
             self.draw()
-            self.clock.tick(5000)
+            #self.clock.tick(5000)
             self.phase = phg.phase()
             self.phase.setNearCells()
             self.plataform = plataform(self.phase.doIt())
@@ -174,7 +184,9 @@ class Control(object):
             self.player.set_spawn(self.plataform.spawn)
             self.cameramove()
             self.player.on_end = False
+            self.player.num_death = 0
             self.state = stt
+            self.timer = time.time()
 
     def state_update(self):
         if self.state == c.MENU:
@@ -198,6 +210,22 @@ class Control(object):
                     if self.state == c.CONFIG:
                         self.config.set_from(c.PAUSE)
                 self.pause.reset()
+        elif self.state == c.SPHASE:
+            if self.savephase.go_to is not None:
+                if self.savephase.go_to is c.CLOSE:
+                    self.done = True
+                else:
+                    self.state = self.savephase.go_to
+                    self.savephase.go_to = None
+                self.slphase.reset()
+        elif self.state == c.LPHASE:
+            if self.loadphase.go_to is not None:
+                if self.loadphase.go_to is c.CLOSE:
+                    self.done = True
+                else:
+                    self.state = self.loadphase.go_to
+                    self.loadphase.go_to = None
+                self.slphase.reset()
         elif self.state == c.CONFIG:
             if self.config.go_to is not None:
                 self.state = self.config.go_to
@@ -211,7 +239,6 @@ class Control(object):
     def restart(self):
         self.player.set_spawn(self.plataform.spawn)
     def main(self):
-        print(self.display.get_size())
         pg.mixer.init()
         self.animation.load_sprites()
         self.menu.start()
@@ -219,6 +246,8 @@ class Control(object):
         self.loading.start()
         self.credits.start()
         self.config.start()
+        self.loadphase.start()
+        self.savephase.start()
         while not self.done:
             if self.first_load and self.state == c.PLAY:
                 self.next_phase()

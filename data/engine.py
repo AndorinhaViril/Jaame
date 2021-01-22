@@ -11,12 +11,12 @@ class player():
         self.height = 55
         self.width = 40
         self.images = []
-        self.images.append(pg.image.load(os.path.join('resources\graphics', 'player.png')))
-        self.images.append(pg.image.load(os.path.join('resources\graphics', 'player2.png')))
-        self.images.append(pg.image.load(os.path.join('resources\graphics', 'climb.png')))
-        self.images.append(pg.image.load(os.path.join('resources\graphics', 'stomped.png')))
-        self.images.append(pg.image.load(os.path.join('resources\graphics', 'dead.png')))
-        self.images.append(pg.image.load(os.path.join('resources\graphics', 'bulleted.png')))
+        self.images.append(pg.image.load(os.path.join('resources\\graphics', 'player.png')))
+        self.images.append(pg.image.load(os.path.join('resources\\graphics', 'player2.png')))
+        self.images.append(pg.image.load(os.path.join('resources\\graphics', 'climb.png')))
+        self.images.append(pg.image.load(os.path.join('resources\\graphics', 'stomped.png')))
+        self.images.append(pg.image.load(os.path.join('resources\\graphics', 'dead.png')))
+        self.images.append(pg.image.load(os.path.join('resources\\graphics', 'bulleted.png')))
         #self.sounds = []
         #self.sounds.append(pg.mixer.Sound(os.path.join('resources\sounds', 'fiaeeee.ogg')))
         #self.sounds.append(pg.mixer.Sound(os.path.join('resources\sounds', 'fiaeeee.ogg')))
@@ -24,12 +24,13 @@ class player():
         self.view_collision = False
         self.iindex = True
         self.cont = 0
+        self.num_death = 0
         self.atack_cont = 0
         self.x = 0
         self.y = 0
         self.sounds = []
-        self.sounds.append(pg.mixer.Sound('resources\sounds\path.ogg'))
-        self.sounds.append(pg.mixer.Sound('resources\sounds\jump.ogg'))
+        self.sounds.append(pg.mixer.Sound('resources\\sounds\\path.ogg'))
+        self.sounds.append(pg.mixer.Sound('resources\\sounds\\jump.ogg'))
         self.state = c.STAND
         self.speed = 0
         self.speedy = 0
@@ -53,6 +54,8 @@ class player():
         #print('x: {} y: {}'.format(*xy))
     def set_spawn(self, spawn):
         #print('c:{} b:{}'.format(spawn.center,spawn.bottom))
+        if self.dead != c.ALIVE:
+            self.num_death += 1
         self.collision.center = spawn.center
         self.collision.bottom = spawn.bottom
         self.x = self.collision.x
@@ -298,6 +301,7 @@ class player():
                 if i.collision is not None:
                     if self.atack_collision.colliderect(i.collision):
                         i.life -= 1
+                        print(i.life)
             if i.type == 'f':
                 if self.atack_collision.colliderect(i.collision):
                     i.life -= 1
@@ -337,7 +341,6 @@ class plataform():
             bu.draw(screen,camera)'''
         for t in self.things_draw:
             t.draw(screen,camera)
-
 ##        sp = pg.Rect(self.spawn.x-camera[0],self.spawn.y-camera[1],self.spawn.width,self.spawn.height)
 ##        pg.draw.rect(screen,c.REDA,sp)
         ed = pg.Rect(self.end.x-camera[0],(self.end.y)-camera[1],self.end.width,self.end.height)
@@ -353,13 +356,14 @@ class plataform():
         for s in self.saws:
             s.update(self.broken_saws)
         for bs in self.broken_saws:
-            bs.update(self.things_collide)
+            if bs in self.things_collide:
+                bs.update(self.things_draw) 
         for f in self.flys:
             if f.life <= 0:
                 self.flys.remove(f)
                 break
             if f in self.things_collide:
-                f.update(pos,dead,self.things_collide)
+                f.update(pos,dead,self.things_draw)
         self.collide_draw_update(ppos)
     def bullet_collide(self,side,pos):
         if side == 2:
@@ -384,15 +388,17 @@ class plataform():
         self.things_collide = []
         self.things_draw = []
         
-        for b in self.blocks:
+        for b in self.blocks: 
             if b.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and b.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and b.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and b.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
-                if b.has_collision:
-                    self.things_collide.append(b)
                 self.things_draw.append(b)
+                if b.pos[1] >= pos[0]-1 and b.pos[1] <= pos[0]+1 and b.pos[0] <= pos[1]+1 and b.pos[0] >= pos[1]-1:
+                    if b.has_collision:
+                        self.things_collide.append(b) 
         for s in self.saws:
             if s.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and s.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and s.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and s.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
-                self.things_collide.append(s)
                 self.things_draw.append(s)
+                if s.pos[1] >= pos[0]-1 and s.pos[1] <= pos[0]+1 and s.pos[0] <= pos[1]+1 and s.pos[0] >= pos[1]-1:
+                    self.things_collide.append(s)
         for bs in self.broken_saws:
             if bs.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and bs.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and bs.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and bs.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
                 if bs.can_hurt:
@@ -403,12 +409,13 @@ class plataform():
                 self.things_draw.append(ca)
         for bu in self.bullets:
             if bu.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and bu.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and bu.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and bu.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
-                self.things_collide.append(bu)
                 self.things_draw.append(bu)
+                if bu.pos[1] >= pos[0]-1 and bu.pos[1] <= pos[0]+1 and bu.pos[0] <= pos[1]+1 and bu.pos[0] >= pos[1]-1:
+                    self.things_collide.append(bu)
         for f in self.flys:
             if f.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and f.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and f.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and f.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
-                self.things_collide.append(f)
                 self.things_draw.append(f)
+                self.things_collide.append(f)
     def copy_phase(self):
         cont_x = 0
         cont_y = 0
@@ -442,7 +449,7 @@ class plataform():
                     self.blocks.append(b)
                 elif a[0] == '3':
                     b.type = 3
-                    b.set_sprite(pg.image.load(os.path.join('resources\graphics', 'grass.png')))
+                    b.set_sprite(pg.image.load(os.path.join('resources\\graphics', 'grass.png')))
                     self.blocks.append(b)
                 if a[1] == '1':
                     s = saw(b)
@@ -480,7 +487,7 @@ class block(pg.sprite.Sprite):
     def __init__(self, xy, wh, pos, scalable):
         #chama o construtor da classe mãe
         pg.sprite.Sprite.__init__(self)
-        self.sprite = pg.image.load(os.path.join('resources\graphics', 'dirt.png'))
+        self.sprite = pg.image.load(os.path.join('resources\\graphics', 'dirt.png'))
         self.scalable = scalable
         self.height = 70
         self.width = 70
@@ -494,7 +501,9 @@ class block(pg.sprite.Sprite):
         self.x = xy[0]
         self.y = xy[1]
     def draw(self,screen,camera):
-        screen.blit(self.sprite,(self.x-camera[0],self.y-camera[1]))
+        if c.COLLISION_BLOCKS_ONLY:
+            if self.has_collision:
+                screen.blit(self.sprite,(self.x-camera[0],self.y-camera[1]))
     def set_sprite(self,sprite):
         self.sprite = sprite
     def set_has_collision(self, has_collision):
@@ -509,9 +518,9 @@ class saw():
         self.type = 's'
         self.life = 45
         self.deactived = False
-        self.pos = (block.pos[0],block.pos[1]-1)
+        self.pos = (block.pos[0]-1,block.pos[1])
         self.block = block
-        self.image = pg.image.load(os.path.join('resources\graphics', 'saw.png'))
+        self.image = pg.image.load(os.path.join('resources\\graphics', 'saw.png'))
         self.collision = pg.Rect(self.x,self.y,55,60)
     def start(self):
         self.collision.center = self.block.collision.center
@@ -523,21 +532,21 @@ class saw():
             self.deactived = True
             self.deactive(bsaws)
     def draw(self,screen,camera):
-        #pg.draw.rect(screen,(255,0,0),self.collision)
+        #pg.draw.rect(screen,(255,0,0),pg.Rect(self.x-camera[0],self.y-camera[1],55,60))
         screen.blit(self.image,(self.x-camera[0],self.y-camera[1]))
     def deactive(self,bsaws):
         ts = torn_saw(self)
         ts.throw()
         bsaws.append(ts)
         self.collision = None
-        self.image = pg.image.load(os.path.join('resources\graphics', 'broken_saw_holder.png'))
+        self.image = pg.image.load(os.path.join('resources\\graphics', 'broken_saw_holder.png'))
         self.x = self.block.collision.center[0]
         self.y = self.block.collision.top-self.image.get_height()
 class torn_saw():
     def __init__(self,saw):
         self.type = 'ts'
         self.pos = [saw.pos[0],saw.pos[1]]
-        self.image = pg.image.load(os.path.join('resources\graphics', 'broken_saw.png'))
+        self.image = pg.image.load(os.path.join('resources\\graphics', 'broken_saw.png'))
         self.collision = pg.Rect(saw.collision.x,saw.collision.y,55,54)
         self.collisions = {'top':False,'bottom':False,'right':False,'left':False}
         self.can_hurt = True
@@ -596,11 +605,11 @@ class canon():
     def __init__(self,side,rect):
         self.x = 0
         self.y = 0
-        
+        self.type = -1
         self.pos = rect.pos
         self.side = side
         self.atack_time = 100
-        self.image = pg.image.load(os.path.join('resources\graphics', 'canon.png'))
+        self.image = pg.image.load(os.path.join('resources\\graphics', 'canon.png'))
         self.block = rect.collision
     def start(self):
         '''
@@ -660,7 +669,7 @@ class bullet():
         self.pos = [0,0]
         self.canon = canon
         self.side = canon.side
-        self.image = pg.image.load(os.path.join('resources\graphics', 'bullet.png'))
+        self.image = pg.image.load(os.path.join('resources\\graphics', 'bullet.png'))
         self.collision = pg.Rect(self.x,self.y,7,5)
         self.point = [0,0]
         self.speed = 0
@@ -728,7 +737,7 @@ class bullet():
 class fly():
     
     def __init__(self,block):
-        self.image = pg.image.load(os.path.join('resources\graphics', 'fly.png'))
+        self.image = pg.image.load(os.path.join('resources\\graphics', 'fly.png'))
         self.collision = pg.Rect(block.collision.center[0],block.collision.bottom,30,25)
         self.collisions = {'top':False,'bottom':False,'right':False,'left':False}
         self.speeds = [0,0]
