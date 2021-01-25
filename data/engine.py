@@ -51,6 +51,7 @@ class player():
     def set_xy(self, xy):
         self.x = xy[0]
         self.y = xy[1] + self.height
+        self.collision = pg.Rect(self.x,self.y+12,self.width,self.height)
         #print('x: {} y: {}'.format(*xy))
     def set_spawn(self, spawn):
         #print('c:{} b:{}'.format(spawn.center,spawn.bottom))
@@ -301,7 +302,6 @@ class player():
                 if i.collision is not None:
                     if self.atack_collision.colliderect(i.collision):
                         i.life -= 1
-                        print(i.life)
             if i.type == 'f':
                 if self.atack_collision.colliderect(i.collision):
                     i.life -= 1
@@ -313,8 +313,8 @@ class plataform():
         self.phase = phase
         self.spawn = None
         self.end = None
-        self.x = 140
-        self.y = 450
+        #self.x = 140
+        #self.y = 450
         self.cont = 0
         self.visible = True
         self.things_collide = []
@@ -504,6 +504,8 @@ class block(pg.sprite.Sprite):
         if c.COLLISION_BLOCKS_ONLY:
             if self.has_collision:
                 screen.blit(self.sprite,(self.x-camera[0],self.y-camera[1]))
+        else:
+            screen.blit(self.sprite,(self.x-camera[0],self.y-camera[1]))
     def set_sprite(self,sprite):
         self.sprite = sprite
     def set_has_collision(self, has_collision):

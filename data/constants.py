@@ -14,8 +14,9 @@ ZOOM_OPTIONS = {.25:'4x',.5:'2x',.75:'1.5x',1:'STANDARD',1.5:'-1.5x',2:'-2x',3:'
 FPS = 30
 TITLE = "Jaame"
 BLOCK_SIZE = (70,70)
-DRAW_DISTANCE_X = 7 if SCREEN_ZOOM > 1 else 7*SCREEN_ZOOM
-DRAW_DISTANCE_Y = 5 if SCREEN_ZOOM > 1 else 5*SCREEN_ZOOM
+DRAW_DISTANCE_X = 7 if SCREEN_ZOOM <= 1 else 7*SCREEN_ZOOM
+DRAW_DISTANCE_Y = 5 if SCREEN_ZOOM <= 1 else 5*SCREEN_ZOOM
+SAVE_COMPLETED_PHASES = False
 COLLISION_BLOCKS_ONLY = True
 #COLORS
 WHITE = (255, 255, 255)
@@ -64,7 +65,7 @@ WALKJ = 'walk+jump'
 JUMP = 'jump'
 CLIMB = 'climb'
 FALL = 'fall'
-ATTACK ='atack'
+ATTACK = 'atack'
 #PlayerStatesForDeath
 ALIVE = 'live'
 STOMPED = 'fall'

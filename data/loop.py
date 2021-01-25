@@ -113,12 +113,9 @@ class Control(object):
         if c.SCREEN_ZOOM == 1:
             mp.append(p[0])
             mp.append(p[1])
-        elif c.SCREEN_ZOOM >= 2:
-            mp.append(p[0]*c.SCREEN_ZOOM)
-            mp.append(p[1]*c.SCREEN_ZOOM)
         else:
-            mp.append(int(p[0]//c.SCREEN_ZOOM))
-            mp.append(int(p[1]//c.SCREEN_ZOOM))
+            mp.append(int(p[0]*c.SCREEN_ZOOM))
+            mp.append(int(p[1]*c.SCREEN_ZOOM))
         return mp
     def event_loop(self):
         if self.state == c.PLAY:
@@ -139,47 +136,55 @@ class Control(object):
             if event.type == pg.QUIT:
                 self.done = True
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_r:#apenas para fim de testes
+                if event.key == pg.K_r:
                     self.restart()
+                if event.key == pg.K_t:#apenas para testes
+                    self.player.set_xy((self.plataform.end.x,self.plataform.end.y))
                 if event.key == pg.K_ESCAPE:
                     if self.state == c.PLAY:
                         self.state = c.PAUSE
                     elif self.state == c.PAUSE:
                         self.state = c.PLAY
             if event.type == pg.VIDEORESIZE:
-            # There's some code to add back window content here.
-                self.display = pg.display.set_mode((event.w, event.h),pg.RESIZABLE)
-                if c.SCREEN_ZOOM == 1:
-                    new_size = [self.display.get_size()[0],self.display.get_size()[1]]
-                else:
-                    new_size = [self.display.get_size()[0]*c.SCREEN_ZOOM,self.display.get_size()[1]*c.SCREEN_ZOOM]
-                c.SCREEN_WIDTH = new_size[0]
-                c.SCREEN_HEIGHT = new_size[1]
-                c.DISPLAY_SIZE = (self.display.get_size()[0],self.display.get_size()[1])
-                c.SCREEN_SIZE = (c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
-                self.screen = pg.Surface(c.SCREEN_SIZE)
-                print(f'{c.SCREEN_SIZE}')
-                self.screen  = pg.Surface(new_size)
-                self.menu.start()
-                self.pause.start()
-                self.loading.start()
-                self.credits.start()
-                self.config.start()
-                self.loadphase.start()
-                self.savephase.start()
+                self.display = pg.display.set_mode((event.w,event.h),pg.RESIZABLE)
+                self.resize_screen()
+    def resize_screen(self):
+        if c.SCREEN_ZOOM == 1:
+            new_size = [self.display.get_size()[0],self.display.get_size()[1]]
+        else:
+            new_size = [self.display.get_size()[0]*c.SCREEN_ZOOM,self.display.get_size()[1]*c.SCREEN_ZOOM]
+        c.SCREEN_WIDTH = new_size[0]
+        c.SCREEN_HEIGHT = new_size[1]
+        c.DISPLAY_SIZE = (self.display.get_size()[0],self.display.get_size()[1])
+        c.SCREEN_SIZE = (c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
+        self.screen = pg.Surface(c.SCREEN_SIZE)
+        self.screen  = pg.Surface(new_size)
+        self.menu.start()
+        self.pause.start()
+        self.loading.start()
+        self.credits.start()
+        self.config.start()
+        self.loadphase.start()
+        self.savephase.start()
     def next_phase(self):
         if self.player.on_end and self.state == c.PLAY or self.new:
             if not self.new:
                 som = pg.mixer.Sound('resources\\musics\\win.ogg')
                 som.play()
+                if c.SAVE_COMPLETED_PHASES and self.loadphase.to_load == None:
+                    self.phase.write_phase()
             self.new = False
             stt = self.state
             self.state = c.LOAD
             self.draw()
-            #self.clock.tick(5000)
             self.phase = phg.phase()
-            self.phase.setNearCells()
-            self.plataform = plataform(self.phase.doIt())
+            if self.loadphase.to_load == None:
+                self.phase.setNearCells()
+            
+                self.plataform = plataform(self.phase.doIt())
+            else:
+                self.plataform = plataform(self.phase.read_phase(self.loadphase.to_load))
+                self.loadphase.to_load = None
             self.plataform.copy_phase()
             self.player.set_spawn(self.plataform.spawn)
             self.cameramove()
@@ -215,21 +220,28 @@ class Control(object):
                 if self.savephase.go_to is c.CLOSE:
                     self.done = True
                 else:
+                    if self.savephase.save:
+                        self.phase.write_phase()
+                        self.savephase.save = False
                     self.state = self.savephase.go_to
                     self.savephase.go_to = None
-                self.slphase.reset()
+                self.savephase.reset()
         elif self.state == c.LPHASE:
             if self.loadphase.go_to is not None:
                 if self.loadphase.go_to is c.CLOSE:
                     self.done = True
                 else:
+                    self.new = True
                     self.state = self.loadphase.go_to
                     self.loadphase.go_to = None
-                self.slphase.reset()
+                self.loadphase.reset()
         elif self.state == c.CONFIG:
             if self.config.go_to is not None:
+                if self.config.zoom != c.SCREEN_ZOOM:
+                    print(f'resize new: {self.config.zoom} old: {c.SCREEN_ZOOM}')
+                    c.SCREEN_ZOOM = self.config.zoom
+                    self.resize_screen()
                 self.state = self.config.go_to
-                self.config.go_to = None
                 self.config.reset()
         elif self.state == c.IMPIKA:
             if self.credits.go_to is not None:

@@ -124,7 +124,10 @@ class phase():
         #print()
         self.post_processing() 
         self.set_collision()
-        return self.write_phase()
+        for cont in range(0,self.height):
+            for contItem in range(0,self.width):
+                self.matrizvisual[cont][contItem] = self.matriz[cont][contItem].type
+        return self.matrizvisual
     def random_path(self,start,end,is_initial):
         aux = start
         path = []
@@ -387,34 +390,36 @@ class phase():
                             self.setCellType(cell.n,'0000')
 
     def write_phase(self):
-        text_complete = ''
-        contador = 0
-        for cont in range(0,self.height):
-            for contItem in range(0,self.width):
-                self.matrizvisual[cont][contItem] = self.matriz[cont][contItem].type
-                #print(f'{self.matrizvisual[cont][contItem][3]}',end=' ')
-            #print('')
-        if self.write:#praticamente inutil    
-            text_file = open("data\components\saida.txt", "w")
-            for i in self.matrizvisual:
-                text = '{}\n'.format(i)
-                text = text.replace('[','')
-                text = text.replace(']','')
-                text = text.replace(', ','')
-                text_complete += text
-                
-                text_file.write(text)
-            text_file.close()
-        #print(self.matrizvisual)
-        return self.matrizvisual
+        from time import localtime, strftime
+        
+        text_file = open(f'maps\{strftime("%H %M %S %d-%M-%Y", localtime())}.phg', 'x')
+        for i in self.matrizvisual:
+            text = '{}\n'.format(i)
+            text = text.replace('[','')
+            text = text.replace(']','')
+            text = text.replace(', ','')          
+            text_file.write(text)
+        text_file.close()
+
             
-    def read_phase(self):#legancy -NÃO UTILIZAR-
-        file = open("saida.txt", "r")
-        text = file.read()
+    def read_phase(self,name):
+        
+        file = open(name, "r")
+        text = file.readlines()
         file.close()    
         phase = []
+        aux = ''
         for row in text:
-            phase.append(row)
+            row = row.replace("'",'')
+            row = row.replace("\n",'')
+            lrow = []
+            for l in row:
+                aux += l
+                if len(aux) == 4:
+                    lrow.append(aux)
+                    aux = ''
+            phase.append(lrow)
+        self.matrizvisual = phase
         return phase
 ##test--
 ##c = 0
