@@ -6,7 +6,7 @@ import data.constants as c
 import os
 class menu():
     def __init__(self):
-        self.itens = ['Play','Configs','Credits','Get out']
+        self.itens = ['Play','Load','Configs','Credits','Get out']
         self.font_title = pg.font.Font('resources/fonts/zenda.ttf',44)
         self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
         self.title = None
@@ -73,11 +73,13 @@ class menu():
             if self.selected_item is not None:
                 if self.selected_item == self.itens_tela[0]:
                     self.go_to = c.PLAY
-                if self.selected_item == self.itens_tela[1]:
+                elif self.selected_item == self.itens_tela[1]:
+                    self.go_to = c.LPHASE
+                elif self.selected_item == self.itens_tela[2]:
                     self.go_to = c.CONFIG
-                if self.selected_item == self.itens_tela[2]:
+                elif self.selected_item == self.itens_tela[3]:
                     self.go_to = c.IMPIKA
-                if self.selected_item == self.itens_tela[3]:
+                elif self.selected_item == self.itens_tela[4]:
                     self.go_to = c.CLOSE
         pos = mouse[0]
         for i in range(0,len(self.itens_tela)):
@@ -87,19 +89,24 @@ class menu():
                     if self.selected_item is not None:
                         if self.selected_item == self.itens_tela[0]:
                             self.go_to = c.PLAY
-                        if self.selected_item == self.itens_tela[1]:
-                            self.go_to = c.CONFIG
+                        elif self.selected_item == self.itens_tela[1]:
+                            self.go_to = c.LPHASE
                         if self.selected_item == self.itens_tela[2]:
-                            self.go_to = c.IMPIKA
+                            self.go_to = c.CONFIG
                         if self.selected_item == self.itens_tela[3]:
+                            self.go_to = c.IMPIKA
+                        if self.selected_item == self.itens_tela[4]:
                             self.go_to = c.CLOSE
 
 class pause():
     def __init__(self):
-        self.itens = ['Back','Configs','Start Menu']
+        self.itens = ['Back','Configs','Save Phase','Start Menu']
         self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
+        self.save = pg.image.load(os.path.join('resources\graphics', 'floppy.png'))
+        self.save_ = None 
         self.itens_tela = []
         self.itens_rect = []
+        self.itens_pos = []
         self.selected_item = None
         self.select_index = -1
         self.go_to = None
@@ -109,17 +116,17 @@ class pause():
         self.select_index = -1
         self.go_to = None
     def draw(self,screen):
-        cont = 0
         for i in range(0,len(self.itens_tela)):
             if self.itens_tela[i] is self.selected_item:
                 item = self.font_text.render(self.itens[i],True,c.BLACK)
-                screen.blit(item,((c.DISPLAY_WIDTH/2)-self.itens_tela[i].get_width()/2+2,(c.DISPLAY_HEIGHT/3)-self.itens_tela[i].get_height()+cont+2))
-            screen.blit(self.itens_tela[i],((c.DISPLAY_WIDTH/2)-self.itens_tela[i].get_width()/2,(c.DISPLAY_HEIGHT/3)-self.itens_tela[i].get_height()+cont))
-            
-            cont+=30
+                screen.blit(item,(self.itens_pos[i][0],self.itens_pos[i][1]+2))
+            #pg.draw.rect(screen,(0,0,0),self.itens_rect[i])
+            screen.blit(self.itens_tela[i],(self.itens_pos[i][0],self.itens_pos[i][1]))
+            #screen.blit()
     def start(self):
         self.itens_tela = []
         self.itens_rect = []
+        self.itens_pos = []
         self.selected_item = None
         self.select_index = -1
         cont = 0
@@ -127,8 +134,9 @@ class pause():
             item = self.font_text.render(i,True,c.WHITE)
             self.itens_tela.append(item)
             rect = item.get_rect()
-            rect.left = (c.DISPLAY_WIDTH/2)-item.get_width()/2
-            rect.top = (c.DISPLAY_HEIGHT/3)-item.get_height()+cont
+            rect.x = (c.SCREEN_WIDTH/2)-item.get_width()/2
+            rect.y = ((c.SCREEN_HEIGHT/3)-item.get_height())+cont
+            self.itens_pos.append((rect.x,rect.y))
             self.itens_rect.append(rect)
             cont+=30
     def event(self,mouse,key):
@@ -157,6 +165,8 @@ class pause():
                 if self.selected_item == self.itens_tela[1]:
                     self.go_to = c.CONFIG
                 if self.selected_item == self.itens_tela[2]:
+                        self.go_to = c.SPHASE
+                if self.selected_item == self.itens_tela[3]:
                     self.go_to = c.MENU
 
         pos = mouse[0]
@@ -170,6 +180,8 @@ class pause():
                         if self.selected_item == self.itens_tela[1]:
                             self.go_to = c.CONFIG
                         if self.selected_item == self.itens_tela[2]:
+                            self.go_to = c.SPHASE
+                        if self.selected_item == self.itens_tela[3]:
                             self.go_to = c.MENU
 
 class load_screen():
@@ -199,25 +211,193 @@ class load_screen():
         for i in self.points:
             pg.draw.rect(screen,c.BLACK,i)
 
+class save_phase():
+    def __init__(self):
+        self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
+        self.itens = ['Save','Back']
+        self.itens_tela = []
+        self.itens_rect = []
+        self.itens_pos = []
+        self.selected_item = None
+        self.select_index = -1
+        self.go_to = None
+    def reset(self):
+        self.selected_item = None
+        self.select_index = -1
+        self.go_to = None
+    def draw(self,screen):
+        for i in range(0,len(self.itens_tela)):
+            if self.itens_tela[i] is self.selected_item:
+                item = self.font_text.render(self.itens[i],True,c.BLACK)
+                screen.blit(item,(self.itens_pos[i][0],self.itens_pos[i][1]+2))
+            #pg.draw.rect(screen,(0,0,0),self.itens_rect[i])
+            screen.blit(self.itens_tela[i],(self.itens_pos[i][0],self.itens_pos[i][1]))
+            #screen.blit()
+    def start(self):
+        self.itens_tela = []
+        self.itens_rect = []
+        self.itens_pos = []
+        self.selected_item = None
+        self.select_index = -1
+        self.save = False
+        cont = 0
+        for i in self.itens:
+            item = self.font_text.render(i,True,c.WHITE)
+            self.itens_tela.append(item)
+            rect = item.get_rect()
+            rect.x = (c.SCREEN_WIDTH/2)-item.get_width()/2
+            rect.y = ((c.SCREEN_HEIGHT/3)-item.get_height())+cont
+            self.itens_pos.append((rect.x,rect.y))
+            self.itens_rect.append(rect)
+            cont+=30
+    def event(self,mouse,key):
+        if key[pg.K_DOWN]:
+            if self.can:
+                self.can =False
+                if self.select_index < len(self.itens_tela)-1:
+                    self.select_index += 1
+                else:
+                    self.select_index = 0
+                self.selected_item = self.itens_tela[self.select_index]
+        if key[pg.K_UP]:
+            if self.can:
+                self.can = False
+                if self.select_index > 0:
+                    self.select_index -= 1
+                else:
+                    self.select_index = len(self.itens_tela)-1
+                self.selected_item = self.itens_tela[self.select_index]
+        if not key[pg.K_UP] and not key[pg.K_DOWN]:
+            self.can = True
+        if key[pg.K_RETURN] or key[pg.K_RIGHT] or key[pg.K_LEFT] or key[pg.K_z]:
+            if self.selected_item is not None:
+                if self.selected_item == self.itens_tela[0]:
+                    self.save = True
+                    self.go_to = c.PAUSE
+                if self.selected_item == self.itens_tela[1]:
+                    self.go_to = c.PAUSE
 
+        pos = mouse[0]
+        for i in range(0,len(self.itens_tela)):
+            if self.itens_rect[i].collidepoint(mouse[0]):
+                self.selected_item = self.itens_tela[i]
+                if mouse[1][0]:
+                    if self.selected_item is not None:
+                        if self.selected_item == self.itens_tela[0]:
+                            self.save = True
+                            self.go_to = c.PAUSE
+                        if self.selected_item == self.itens_tela[1]:
+                            self.go_to = c.PAUSE
+
+class load_phase():
+    def __init__(self):
+        self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
+        self.archieves = []
+        self.itens_tela = []
+        self.itens_rect = []
+        self.itens_pos = []
+        self.to_load = None
+        self.selected_item = None
+        self.select_index = -1
+        self.go_to = None
+    def start(self):
+        self.itens_tela = []
+        self.itens_rect = []
+        self.itens_pos = []
+        self.selected_item = None
+        self.archieves = []
+        self.select_index = -1
+        self.to_load = None
+        caminhos = [os.path.join('maps', nome) for nome in os.listdir('maps')]
+        arquivos = [arq for arq in caminhos if os.path.isfile(arq)]
+        for arq in arquivos: 
+            if arq.lower().endswith(".phg"):
+                aux = arq.replace('.phg','')
+                aux = aux.replace('maps\\','')
+                self.archieves.append(aux)
+        self.archieves.append('Back')
+        
+        cont = 0
+        for i in self.archieves:
+            item = self.font_text.render(i,True,c.WHITE)
+            self.itens_tela.append(item)
+            rect = item.get_rect()
+            rect.x = (c.SCREEN_WIDTH/2)-item.get_width()/2
+            rect.y = ((c.SCREEN_HEIGHT/3)-item.get_height())+cont
+            self.itens_pos.append((rect.x,rect.y))
+            self.itens_rect.append(rect)
+            cont+=30
+    def reset(self):
+        self.selected_item = None
+        self.select_index = -1
+        self.go_to = None
+    def draw(self,screen):
+        for i in range(0,len(self.itens_tela)):
+            if self.itens_tela[i] is self.selected_item:
+                item = self.font_text.render(self.archieves[i],True,c.BLACK)
+                screen.blit(item,(self.itens_pos[i][0],self.itens_pos[i][1]+2))
+            #pg.draw.rect(screen,(0,0,0),self.itens_rect[i])
+            screen.blit(self.itens_tela[i],(self.itens_pos[i][0],self.itens_pos[i][1]))
+    def event(self,mouse,key):
+        if key[pg.K_DOWN]:
+            if self.can:
+                self.can =False
+                if self.select_index < len(self.itens_tela)-1:
+                    self.select_index += 1
+                else:
+                    self.select_index = 0
+                self.selected_item = self.itens_tela[self.select_index]
+        if key[pg.K_UP]:
+            if self.can:
+                self.can = False
+                if self.select_index > 0:
+                    self.select_index -= 1
+                else:
+                    self.select_index = len(self.itens_tela)-1
+                self.selected_item = self.itens_tela[self.select_index]
+        if not key[pg.K_UP] and not key[pg.K_DOWN]:
+            self.can = True
+        if key[pg.K_RETURN] or key[pg.K_RIGHT] or key[pg.K_LEFT] or key[pg.K_z]:
+            if self.selected_item is not None:
+                if self.selected_item == self.itens_tela[len(self.itens_tela)-1]:
+                    self.go_to = c.MENU
+                else:
+                    self.to_load = f'maps\\{self.archieves[self.select_index]}.phg'
+                    self.go_to = c.PLAY
+        pos = mouse[0]
+        for i in range(0,len(self.itens_tela)):
+            if self.itens_rect[i].collidepoint(mouse[0]):
+                self.selected_item = self.itens_tela[i]
+                if mouse[1][0]:
+                    if self.selected_item is not None:
+                        if self.selected_item == self.itens_tela[len(self.itens_tela)-1]:
+                            self.go_to = c.MENU
+                        else:
+                            self.to_load = f'maps\\{self.archieves[i]}.phg'
+                            self.go_to = c.PLAY
+   
 class config():
     def __init__(self):
-        self.itens = ['Back']
+        self.itens = [f'Zoom {c.ZOOM_OPTIONS[c.SCREEN_ZOOM]}','Show Only Blocks with Collision','No Save Completed Phases','Back']
         self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
         self.title = None
         self.itens_tela = []
         self.itens_rect = []
         self.selected_item = None
+        self.zoom = c.SCREEN_ZOOM
         self.go_to = None
         self.from_ = None
         self.can = True
+        self.can_side = True
     def draw(self, screen):
         cont = 0
         for i in range(0,len(self.itens_tela)):
+            if i == 0:
+                self.itens[0] = f'Zoom {c.ZOOM_OPTIONS[self.zoom]}'
             if self.itens_tela[i] is self.selected_item:
                 item = self.font_text.render(self.itens[i],True,c.BLACK)
-                screen.blit(item,((c.DISPLAY_WIDTH/2)-self.itens_tela[i].get_width()/2+2,(c.DISPLAY_HEIGHT/3)-self.itens_tela[i].get_height()+cont+2))
-            screen.blit(self.itens_tela[i],(c.DISPLAY_WIDTH/2-self.itens_tela[i].get_width()/2, c.DISPLAY_HEIGHT/3-self.itens_tela[i].get_height()+cont))
+                screen.blit(item,((c.SCREEN_WIDTH/2)-self.itens_tela[i].get_width()/2+2,(c.SCREEN_HEIGHT/3)-self.itens_tela[i].get_height()+cont+2))
+            screen.blit(self.itens_tela[i],(c.SCREEN_WIDTH/2-self.itens_tela[i].get_width()/2, c.SCREEN_HEIGHT/3-self.itens_tela[i].get_height()+cont))
             cont = cont + 30
 
     def start(self):
@@ -231,8 +411,8 @@ class config():
             self.itens_tela.append(item)
             rect = item.get_rect()
             
-            rect.left = (c.DISPLAY_WIDTH/2)-item.get_width()/2
-            rect.top = (c.DISPLAY_HEIGHT/3)-item.get_height()+cont
+            rect.left = (c.SCREEN_WIDTH/2)-item.get_width()/2
+            rect.top = (c.SCREEN_HEIGHT/3)-item.get_height()+cont
             self.itens_rect.append(rect)
             cont+=30
     def reset(self):
@@ -258,17 +438,74 @@ class config():
                 self.selected_item = self.itens_tela[self.select_index]
         if not key[pg.K_UP] and not key[pg.K_DOWN]:
             self.can = True
-        if key[pg.K_RETURN] or key[pg.K_RIGHT] or key[pg.K_LEFT] or key[pg.K_z]:
+        if key[pg.K_RETURN] or key[pg.K_z]:
             if self.selected_item is not None:
-                if self.selected_item == self.itens_tela[0]:
+                if self.selected_item == self.itens_tela[3]:
                     self.go_to = self.from_
+        if key[pg.K_RIGHT] or key[pg.K_LEFT]:
+            if self.selected_item == self.itens_tela[0]:
+                if self.can_side:
+                    self.can_side = False
+                    zidx = 0
+                    for i,zoom in enumerate(c.ZOOM_OPTIONS):
+                        if zoom == self.zoom:
+                            zidx = i
+                    if key[pg.K_RIGHT]:
+                        if zidx < len(c.ZOOM_OPTIONS)-1:
+                            zidx += 1
+                        else:
+                            zidx = 0
+                    
+                    if key[pg.K_LEFT]:
+                        if zidx == 0:
+                            zidx = len(c.ZOOM_OPTIONS)-1
+                        else:
+                            zidx -=1
+                    for i,zoom in enumerate(c.ZOOM_OPTIONS):
+                            if i == zidx:
+                                self.zoom = zoom
+                                c.DRAW_DISTANCE_X = 7 if c.SCREEN_ZOOM <= 1 else 7*self.zoom
+                                c.DRAW_DISTANCE_Y = 5 if c.SCREEN_ZOOM <= 1 else 5*self.zoom
+                                break
+                    self.itens_tela[0] = self.font_text.render(f'Zoom {c.ZOOM_OPTIONS[self.zoom]}',True,c.WHITE)
+                    self.selected_item = self.itens_tela[0]
+            if self.selected_item == self.itens_tela[1]:
+                if self.can_side:
+                    self.can_side = False
+                    if c.COLLISION_BLOCKS_ONLY:
+                        c.COLLISION_BLOCKS_ONLY = False
+                        self.itens[1] = 'SHOW ALL BLOCKS'
+                        self.itens_tela[1] = self.font_text.render(self.itens[1],True,c.WHITE)
+                        self.selected_item = self.itens_tela[1]
+                    else:
+                        c.COLLISION_BLOCKS_ONLY = True
+                        self.itens[1] = 'Show Only Blocks with Collision'
+                        self.itens_tela[1] = self.font_text.render(self.itens[1],True,c.WHITE)
+                        self.selected_item = self.itens_tela[1]
+            if self.selected_item == self.itens_tela[2]:
+                if self.can_side:
+                    self.can_side = False
+                    if c.SAVE_COMPLETED_PHASES:
+                        c.SAVE_COMPLETED_PHASES = False
+                        self.itens[2] = 'No Save Completed Phases'
+                        self.itens_tela[2] = self.font_text.render(self.itens[2],True,c.WHITE)
+                        self.selected_item = self.itens_tela[2]
+                    else:
+                        c.SAVE_COMPLETED_PHASES = True
+                        self.itens[2] = 'Save Completed Phases'
+                        self.itens_tela[2] = self.font_text.render(self.itens[2],True,c.WHITE)
+                        self.selected_item = self.itens_tela[2]
+            if self.selected_item == self.itens_tela[3]:
+                self.go_to = self.from_
+        if not key[pg.K_LEFT] and not key[pg.K_RIGHT]:
+            self.can_side = True
         pos = mouse[0]
         for i in range(0,len(self.itens_tela)):
             if self.itens_rect[i].collidepoint(mouse[0]):
                 self.selected_item = self.itens_tela[i]
                 if mouse[1][0]:
                     if self.selected_item is not None:
-                        if self.selected_item == self.itens_tela[0]:
+                        if self.selected_item == self.itens_tela[3]:
                             self.go_to = self.from_
     def set_from(self,f):
         self.from_ = f
@@ -285,11 +522,11 @@ class credits():
         self.can = True
     def draw(self,screen):
         item = self.font_text.render('\n\nby AndorinhaViril  inc.',True,c.BLACK)
-        screen.blit(item,((c.DISPLAY_WIDTH/2)-item.get_width()/2,0))
+        screen.blit(item,((c.SCREEN_WIDTH/2)-item.get_width()/2,0))
         if self.itens_tela is self.selected_item:
             item = self.font_text.render(self.item,True,c.BLACK)
-            screen.blit(item,((c.DISPLAY_WIDTH/2)-self.itens_tela.get_width()/2+2,(c.DISPLAY_HEIGHT)-self.itens_tela.get_height()+2))
-        screen.blit(self.itens_tela,((c.DISPLAY_WIDTH/2)-self.itens_tela.get_width()/2,(c.DISPLAY_HEIGHT)-self.itens_tela.get_height()))
+            screen.blit(item,((c.SCREEN_WIDTH/2)-self.itens_tela.get_width()/2+2,(c.SCREEN_HEIGHT)-self.itens_tela.get_height()+2))
+        screen.blit(self.itens_tela,((c.SCREEN_WIDTH/2)-self.itens_tela.get_width()/2,(c.SCREEN_HEIGHT)-self.itens_tela.get_height()))
     def reset(self):
         self.selected_item = None
         self.select_index = -1
@@ -302,8 +539,8 @@ class credits():
         item = self.font_text.render(self.item,True,c.WHITE)
         self.itens_tela = item
         rect = item.get_rect()
-        rect.left = (c.DISPLAY_WIDTH/2)-item.get_width()/2
-        rect.top = (c.DISPLAY_HEIGHT)-item.get_height()
+        rect.left = (c.SCREEN_WIDTH/2)-item.get_width()/2
+        rect.top = (c.SCREEN_HEIGHT)-item.get_height()
         self.itens_rect = rect
 
     def event(self,mouse,key):
@@ -327,16 +564,22 @@ class credits():
             if mouse[1][0]:
                 if self.selected_item is not None:
                     self.go_to = c.MENU
-                        
+
 class hud():
     def __init__(self):
         self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
-        self.heart = pg.image.load(os.path.join('resources\graphics', 'hart.png'))
-    def draw(self,screen,player_pos,end_pos,status):
+        self.heart = pg.image.load(os.path.join('resources\graphics', 'dark_hart.png'))
+    def draw(self,screen,player_pos,end_pos,status,num_deaths,timer):
         if status == c.ALIVE:
             item = self.font_text.render('{}, {} | {}, {}'.format(player_pos[0],player_pos[1],end_pos[0]//70,end_pos[1]//70),True,c.BLACK)
-            screen.blit(item,(50,0))
-            screen.blit(self.heart,(0,0))
+            if num_deaths > 0:
+                num = self.font_text.render(f' {num_deaths}',True,c.BLACK)
+                screen.blit(self.heart,(0,0))
+                screen.blit(num,(22,0))
+
+            screen.blit(item,(100,0))
+            t = self.getTime(timer)
+            screen.blit(t,(c.SCREEN_WIDTH-t.get_width(),0))
         else:
             item = self.font_text.render('DIED',True,c.BLACK)
             item2 = self.font_text.render('DIED',True,c.WHITE)
@@ -350,5 +593,17 @@ class hud():
             screen.blit(item2, (x-2,y-2))
             screen.blit(item4, (x2,y2))
             screen.blit(item3, (x2-2,y2-2))
+    def getTime(self,timer):
+        ti = int(timer // 1) * -1
+        minu = 0
+        sec = 0
 
-
+        if ti > 59:
+            minu = ti//60
+            sec = ti-(60*minu)
+        else:
+            sec = ti
+        if int(sec) < 10:
+            return self.font_text.render(f'{minu} : 0{int(sec)}',True,c.BLACK)
+        else:
+            return self.font_text.render(f'{minu} : {int(sec)}',True,c.BLACK)
