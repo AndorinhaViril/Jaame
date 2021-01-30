@@ -14,6 +14,11 @@ from data.components import phasegenerator as phg
 
 class Control(object):
     def __init__(self, caption):
+        try:
+            pg.mixer.pre_init(44100, 16, 2, 4096)
+            pg.init()
+        except:
+            print('Falhou a inicialização do modulo principal')
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         pg.display.set_icon(pg.image.load(os.path.join('resources\\graphics','player.png')))
         self.screen = pg.Surface(c.SCREEN_SIZE)
@@ -169,7 +174,7 @@ class Control(object):
     def next_phase(self):
         if self.player.on_end and self.state == c.PLAY or self.new:
             if not self.new:
-                som = pg.mixer.Sound('resources\\musics\\win.ogg')
+                som = pg.mixer.Sound(os.path.join('resources\\musics','win.wav'))
                 som.play()
                 if c.SAVE_COMPLETED_PHASES and self.loadphase.to_load == None:
                     self.phase.write_phase()
@@ -231,14 +236,15 @@ class Control(object):
                 if self.loadphase.go_to is c.CLOSE:
                     self.done = True
                 else:
-                    self.new = True
+                    if self.loadphase.to_load is not None:
+                        self.new = True
                     self.state = self.loadphase.go_to
                     self.loadphase.go_to = None
                 self.loadphase.reset()
         elif self.state == c.CONFIG:
             if self.config.go_to is not None:
                 if self.config.zoom != c.SCREEN_ZOOM:
-                    print(f'resize new: {self.config.zoom} old: {c.SCREEN_ZOOM}')
+                    #print(f'resize new: {self.config.zoom} old: {c.SCREEN_ZOOM}')
                     c.SCREEN_ZOOM = self.config.zoom
                     self.resize_screen()
                 self.state = self.config.go_to
@@ -271,3 +277,4 @@ class Control(object):
                 fps = self.clock.get_fps()
                 with_fps = '{} - {:.2f} FPS'.format(self.caption,fps)
                 pg.display.set_caption(with_fps)
+        pg.quit()
