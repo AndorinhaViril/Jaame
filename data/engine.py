@@ -29,8 +29,8 @@ class player():
         self.x = 0
         self.y = 0
         self.sounds = []
-        self.sounds.append(pg.mixer.Sound('resources\\sounds\\path.ogg'))
-        self.sounds.append(pg.mixer.Sound('resources\\sounds\\jump.ogg'))
+        self.sounds.append(pg.mixer.Sound(os.path.join('resources\\sounds','path.wav')))
+        self.sounds.append(pg.mixer.Sound(os.path.join('resources\\sounds','jump.wav')))
         self.state = c.STAND
         self.speed = 0
         self.speedy = 0

@@ -513,7 +513,7 @@ class config():
 class credits():
     def __init__(self):
         self.item = 'Back'
-        self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
+        self.font_text = pg.font.Font(os.path.join('resources\\fonts','METROLOX.ttf'),20)
         self.title = None
         self.itens_tela = None
         self.itens_rect = None

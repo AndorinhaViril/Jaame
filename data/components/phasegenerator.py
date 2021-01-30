@@ -392,7 +392,7 @@ class phase():
     def write_phase(self):
         from time import localtime, strftime
         
-        text_file = open(f'maps\{strftime("%H %M %S %d-%M-%Y", localtime())}.phg', 'x')
+        text_file = open(f'maps\{strftime("%HH %MM %SS %d-%m-%Y", localtime())}.phg', 'x')
         for i in self.matrizvisual:
             text = '{}\n'.format(i)
             text = text.replace('[','')
