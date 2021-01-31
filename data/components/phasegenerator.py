@@ -11,9 +11,11 @@ class cell():
         self.e = None
         self.w = None
         self.type = '9000'
+    
     def hasNearCells(self,*direction):
         for d in direction:
             self.findCellOn(d)
+    
     def findCellOn(self, direction):
         if direction == 'n':
             if self.pos[1] - 1 >= 0:
@@ -44,8 +46,7 @@ class cell():
                 self.hasNear['e'] = False
                 return None
 
-
-        
+   
 class phase():
     def __init__(self):
         self.height = 26
@@ -53,13 +54,15 @@ class phase():
         self.write = False
         self.matriz = [[cell((x,y)) for x in range(self.width)] for y in range(self.height)]
         self.matrizvisual =  [[0 for x in range(self.width)] for y in range(self.height)]
-        self.exit = ((random.randrange(1,self.width-2),random.randrange(self.height-5,self.height-2)))
+        self.exit = ((random.randrange(1,self.width-2),random.randrange(self.height-5,self.height-4)))
         self.spawn = ((random.randrange(2,self.width-2),random.randrange(1,4)))
         self.lastDirection = None
         self.path = []
         self.firstDirection = None
+   
     def set_write(self, is_writing):
         self.write = is_writing
+    
     def findCellByPosition(self,position):
         if position is not None:
             return self.matriz[position[1]][position[0]]
@@ -74,9 +77,11 @@ class phase():
                 cell.s = self.findCellByPosition(cell.findCellOn('s'))
                 cell.e = self.findCellByPosition(cell.findCellOn('e'))
                 self.updateCell(cell)
+    
     def setCellType(self,cell,tipe):
         cell.type = tipe
         self.updateCell(cell)
+   
     def set_collision(self):
         for line in range(self.width):
             for column in range(self.height):
@@ -105,10 +110,10 @@ class phase():
                             aux[3] = False 
                     if False in aux:
                         self.setCellType(cll,self.format_cell_type(cll.type,'9',3))
-                        
+
     def updateCell(self,cell):
         self.matriz[cell.pos[1]][cell.pos[0]] = cell
-        #print(cell.type)
+ 
     def doIt(self):
         self.path = []
         self.firstDirection = None
@@ -128,6 +133,7 @@ class phase():
             for contItem in range(0,self.width):
                 self.matrizvisual[cont][contItem] = self.matriz[cont][contItem].type
         return self.matrizvisual
+    
     def random_path(self,start,end,is_initial):
         aux = start
         path = []
@@ -231,12 +237,12 @@ class phase():
                 if is_initial:
                     self.path.append(path)
                 done = True   
-            
-        
+   
     def reDoIt(self):
-        self.exit = ((random.randrange(1,self.width-1),random.randrange(self.height-5,self.height-2)))
+        self.exit = ((random.randrange(1,self.width-1),random.randrange(self.height-5,self.height-4)))
         self.spawn = ((random.randrange(2,self.width-1),random.randrange(1,4)))
         self.doIt()
+   
     def verify_path(self):
         aux = []
         aux3 = []
@@ -262,6 +268,7 @@ class phase():
             for c in aux2:
                 aux.append(c)
         return False
+    
     def get_cells_without_traps(self):
         cwt = []
         aux = None
@@ -276,15 +283,28 @@ class phase():
                     cwt.append(pos)
                     aux = pos
         return cwt
+    
     def post_processing(self):
         self.vertically_widen()
+        if self.findCellByPosition((self.exit[0]-1,self.exit[1]+2)).type[0] != '9':
+            if self.findCellByPosition((self.exit[0]-1,self.exit[1]+3)) != None:
+                if self.findCellByPosition((self.exit[0]-1,self.exit[1]+3)).type[0] != '9':
+                    tp = self.findCellByPosition((self.exit[0]-1,self.exit[1]+2)).type
+                    self.setCellType(self.findCellByPosition((self.exit[0]-1,self.exit[1]+2)),f'9{tp[1]}{tp[2]}9')
+        elif self.findCellByPosition((self.exit[0]+1,self.exit[1]+2)).type[0] != '9' :
+            if self.findCellByPosition((self.exit[0]+1,self.exit[1]+3)) != None:
+                if self.findCellByPosition((self.exit[0]+1,self.exit[1]+3)).type[0] != '9':
+                    tp = self.findCellByPosition((self.exit[0]+1,self.exit[1]+2)).type
+                    self.setCellType(self.findCellByPosition((self.exit[0]+1,self.exit[1]+2)),f'9{tp[1]}{tp[2]}9')
         self.setCellType(self.findCellByPosition(self.spawn),'1000')
         self.setCellType(self.findCellByPosition(self.exit),'8000')
         self.setCellType(self.findCellByPosition((self.spawn[0],self.spawn[1]+1)),'9009')
         self.setCellType(self.findCellByPosition((self.exit[0],self.exit[1]+1)),'9009')
+
         if not self.verify_path():
             self.reDoIt()
         self.set_traps()
+    
     def set_traps(self):
         spaces = 0
         cells = []
@@ -380,6 +400,7 @@ class phase():
         aux[where] = type_to_add
         ret = ''.join(aux)
         return ret
+    
     def vertically_widen(self):
         self.setNearCells()
         for list_ in self.matriz:
@@ -391,7 +412,6 @@ class phase():
 
     def write_phase(self):
         from time import localtime, strftime
-        
         text_file = open(f'maps\{strftime("%HH %MM %SS %d-%m-%Y", localtime())}.phg', 'x')
         for i in self.matrizvisual:
             text = '{}\n'.format(i)
@@ -401,7 +421,6 @@ class phase():
             text_file.write(text)
         text_file.close()
 
-            
     def read_phase(self,name):
         
         file = open(name, "r")

@@ -11,13 +11,13 @@ class animation():
 		self.x = 100
 		self.y = 100
 	def load_sprites(self):
-		self.blocks_sprites.append(pg.image.load(os.path.join('resources\graphics', 'dirt.png')))
 		self.blocks_sprites.append(pg.image.load(os.path.join('resources\graphics', 'grass.png')))
 		self.player_sprites.append(pg.image.load(os.path.join('resources\graphics', 'player.png')))	
 		self.player_sprites.append(pg.image.load(os.path.join('resources\graphics', 'player2.png')))
-	def menu(self, screen):
+	def menu(self, screen, pos):
+		self.x,self.y = pos[0],pos[1]
 		screen.blit(self.player_sprites[self.cont],(self.x,self.y))
-		screen.blit(self.blocks_sprites[self.cont],(self.x,self.y+55))
+		screen.blit(self.blocks_sprites[0],(self.x,self.y+67))
 		if self.cont == 0:
 			self.cont = 1
 		else:

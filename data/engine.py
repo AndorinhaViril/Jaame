@@ -17,9 +17,6 @@ class player():
         self.images.append(pg.image.load(os.path.join('resources\\graphics', 'stomped.png')))
         self.images.append(pg.image.load(os.path.join('resources\\graphics', 'dead.png')))
         self.images.append(pg.image.load(os.path.join('resources\\graphics', 'bulleted.png')))
-        #self.sounds = []
-        #self.sounds.append(pg.mixer.Sound(os.path.join('resources\sounds', 'fiaeeee.ogg')))
-        #self.sounds.append(pg.mixer.Sound(os.path.join('resources\sounds', 'fiaeeee.ogg')))
         self.sprite = self.images[0]
         self.view_collision = False
         self.iindex = True
@@ -31,6 +28,8 @@ class player():
         self.sounds = []
         self.sounds.append(pg.mixer.Sound(os.path.join('resources\\sounds','path.wav')))
         self.sounds.append(pg.mixer.Sound(os.path.join('resources\\sounds','jump.wav')))
+        #self.sounds.append(pg.mixer.Sound(os.path.join('resources\sounds', 'fiaeeee.ogg')))
+        #self.sounds.append(pg.mixer.Sound(os.path.join('resources\sounds', 'fiaeeee.ogg')))
         self.state = c.STAND
         self.speed = 0
         self.speedy = 0
@@ -387,7 +386,6 @@ class plataform():
     def collide_draw_update(self,pos):
         self.things_collide = []
         self.things_draw = []
-        
         for b in self.blocks: 
             if b.pos[1] >= pos[0]-c.DRAW_DISTANCE_X and b.pos[1] <= pos[0]+c.DRAW_DISTANCE_X and b.pos[0] <= pos[1]+c.DRAW_DISTANCE_Y and b.pos[0] >= pos[1]-c.DRAW_DISTANCE_Y:
                 self.things_draw.append(b)
