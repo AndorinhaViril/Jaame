@@ -23,9 +23,11 @@ class menu():
         screen.blit(self.title,(10,15))
         cont = 0
         for i in range(0,len(self.itens_tela)):
+            #pg.draw.rect(screen,c.REDA,self.itens_rect[i])
             if self.itens_tela[i] is self.selected_item:
                 item = self.font_text.render(self.itens[i],True,c.BLACK)
                 screen.blit(item,(20+2,25+self.title.get_height()+self.itens_tela[i].get_height()+cont+2))
+
             
             screen.blit(self.itens_tela[i],(20,25+self.title.get_height()+self.itens_tela[i].get_height()+cont))
             

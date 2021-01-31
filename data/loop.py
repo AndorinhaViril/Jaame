@@ -75,7 +75,7 @@ class Control(object):
             self.hud.draw(self.screen,(self.player.x//70,self.player.y//70),(self.plataform.end.x//1,self.plataform.end.y//1),self.player.dead,self.player.num_death,(self.timer-time.time()))
         elif self.state == c.MENU:
             self.menu.draw(self.screen)
-            self.animation.menu(self.screen)
+            self.animation.menu(self.screen,self.get_mouse_pos())
         elif self.state == c.PAUSE:
             self.pause.draw(self.screen)
         elif self.state == c.LPHASE:
@@ -119,8 +119,8 @@ class Control(object):
             mp.append(p[0])
             mp.append(p[1])
         else:
-            mp.append(int(p[0]*c.SCREEN_ZOOM))
-            mp.append(int(p[1]*c.SCREEN_ZOOM))
+            mp.append(p[0]*c.SCREEN_ZOOM)
+            mp.append(p[1]*c.SCREEN_ZOOM)
         return mp
     def event_loop(self):
         if self.state == c.PLAY:
@@ -144,7 +144,7 @@ class Control(object):
                 if event.key == pg.K_r:
                     self.restart()
                 if event.key == pg.K_t:#apenas para testes
-                    self.player.set_xy((self.plataform.end.x,self.plataform.end.y))
+                    self.player.set_xy((self.plataform.end.x-70,self.plataform.end.y))
                 if event.key == pg.K_ESCAPE:
                     if self.state == c.PLAY:
                         self.state = c.PAUSE
