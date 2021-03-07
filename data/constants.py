@@ -12,7 +12,7 @@ SCREEN_HEIGHT = DISPLAY_HEIGHT*SCREEN_ZOOM
 SCREEN_WIDTH = DISPLAY_WIDTH*SCREEN_ZOOM
 SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
 
-FPS = 0
+FPS = 30
 TITLE = "Jaame"
 BLOCK_SIZE = (70,70)
 DRAW_DISTANCE_X = 7 if SCREEN_ZOOM <= 1 else 7*SCREEN_ZOOM
@@ -72,3 +72,47 @@ ALIVE = 'live'
 STOMPED = 'fall'
 SLASH = 'saw'
 SHOT = 'shot'
+
+def load_configs():
+    text_file = open('resources\\config\\config.cfg', 'r')
+    text = text_file.readlines()
+    global SAVE_COMPLETED_PHASES
+    global COLLISION_BLOCKS_ONLY
+    global SCREEN_ZOOM
+    global SCREEN_HEIGHT
+    global SCREEN_WIDTH
+    global SCREEN_SIZE
+    global DRAW_DISTANCE_X
+    global DRAW_DISTANCE_Y
+    
+    for line in text:
+        content = line.split(':')
+        if content[0] == 'scp':
+            try:
+                SAVE_COMPLETED_PHASES = bool(content[1])
+            except ValueError:
+                break
+        elif content[0] == 'cbo':
+            try:
+                COLLISION_BLOCKS_ONLY = bool(content[1])
+            except ValueError:
+                break
+        elif content[0] == 'sz':
+            try:
+                SCREEN_ZOOM = float(content[1])
+                SCREEN_HEIGHT = DISPLAY_HEIGHT*SCREEN_ZOOM
+                SCREEN_WIDTH = DISPLAY_WIDTH*SCREEN_ZOOM
+                SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
+                DRAW_DISTANCE_X = 7 if SCREEN_ZOOM <= 1 else 7*SCREEN_ZOOM
+                DRAW_DISTANCE_Y = 5 if SCREEN_ZOOM <= 1 else 5*SCREEN_ZOOM
+            except ValueError:
+                break
+def save_configs():
+    text_file = open('resources\\config\\config.cfg', 'w')
+    text_file.write(f'scp:{SAVE_COMPLETED_PHASES}\ncbo:{COLLISION_BLOCKS_ONLY}\nsz:{SCREEN_ZOOM}')
+    
+    
+    
+    
+    
+    
