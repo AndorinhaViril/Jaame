@@ -14,6 +14,7 @@ from data.components import phasegenerator as phg
 
 class Control(object):
     def __init__(self, caption):
+        c.load_configs()
         try:
             pg.mixer.pre_init(44100, 16, 2, 4096)
             pg.init()
@@ -42,7 +43,7 @@ class Control(object):
         self.phase = phg.phase()
         self.animation = a.animation()
         self.plataform = None
-        self.menu = m.menu()
+        self.menu = m.inicial()
         self.pause = m.pause()
         self.loading = m.load_screen()
         self.loadphase = m.load_phase()
@@ -75,7 +76,7 @@ class Control(object):
             self.hud.draw(self.screen,(self.player.x//70,self.player.y//70),(self.plataform.end.x//1,self.plataform.end.y//1),self.player.dead,self.player.num_death,(self.timer-time.time()))
         elif self.state == c.MENU:
             self.menu.draw(self.screen)
-            self.animation.menu(self.screen,self.get_mouse_pos())
+            self.animation.menu(self.screen,self.get_mouse_pos(),self.clock.get_fps())
         elif self.state == c.PAUSE:
             self.pause.draw(self.screen)
         elif self.state == c.LPHASE:
@@ -249,6 +250,7 @@ class Control(object):
                     self.resize_screen()
                 self.state = self.config.go_to
                 self.config.reset()
+                c.save_configs()
         elif self.state == c.IMPIKA:
             if self.credits.go_to is not None:
                 self.state = self.credits.go_to

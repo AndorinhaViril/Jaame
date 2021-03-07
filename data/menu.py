@@ -4,12 +4,13 @@ Toda a interface e HUD, assim como seus eventos
 import pygame as pg
 import data.constants as c
 import os
+
 class menu():
     def __init__(self):
-        self.itens = ['Play','Load','Configs','Credits','Get out']
         self.font_title = pg.font.Font('resources/fonts/zenda.ttf',44)
         self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
         self.title = None
+        self.itens = []
         self.itens_tela = []
         self.itens_rect = []
         self.selected_item = None
@@ -20,38 +21,14 @@ class menu():
         self.select_index = -1
         self.go_to = None
     def draw(self,screen):
-        screen.blit(self.title,(10,15))
-        cont = 0
+        if self.title is not None:
+           screen.blit(self.title,(10,15))
         for i in range(0,len(self.itens_tela)):
             #pg.draw.rect(screen,c.REDA,self.itens_rect[i])
             if self.itens_tela[i] is self.selected_item:
                 item = self.font_text.render(self.itens[i],True,c.BLACK)
-                screen.blit(item,(20+2,25+self.title.get_height()+self.itens_tela[i].get_height()+cont+2))
-
-            
-            screen.blit(self.itens_tela[i],(20,25+self.title.get_height()+self.itens_tela[i].get_height()+cont))
-            
-            cont+=30
-    def start(self):
-        self.title = None
-        self.itens_tela = []
-        self.itens_rect = []
-        self.selected_item = None
-        self.select_index = -1
-        self.can = True
-        self.go_to = None
-        title = self.font_text.render("JAAME", True, c.BLACK)
-        self.title = title
-        cont = 0
-        for i in self.itens:
-            itens = self.font_text.render(i,True,c.WHITE)
-            self.itens_tela.append(itens)
-            rect = itens.get_rect()
-            rect.left = 20
-            rect.top = 25+self.title.get_height()+itens.get_height()+cont
-            self.itens_rect.append(rect)
-            cont+=30
-
+                screen.blit(item,(self.itens_rect[i].x,self.itens_rect[i].y+2))
+            screen.blit(self.itens_tela[i],(self.itens_rect[i].x,self.itens_rect[i].y))
     def event(self,mouse,key):
         if key[pg.K_DOWN]:
             if self.can:
@@ -73,33 +50,54 @@ class menu():
             self.can = True
         if key[pg.K_RETURN] or key[pg.K_RIGHT] or key[pg.K_LEFT] or key[pg.K_z]:
             if self.selected_item is not None:
-                if self.selected_item == self.itens_tela[0]:
-                    self.go_to = c.PLAY
-                elif self.selected_item == self.itens_tela[1]:
-                    self.go_to = c.LPHASE
-                elif self.selected_item == self.itens_tela[2]:
-                    self.go_to = c.CONFIG
-                elif self.selected_item == self.itens_tela[3]:
-                    self.go_to = c.IMPIKA
-                elif self.selected_item == self.itens_tela[4]:
-                    self.go_to = c.CLOSE
+                return self.select_index
         pos = mouse[0]
         for i in range(0,len(self.itens_tela)):
             if self.itens_rect[i].collidepoint(mouse[0]):
                 self.selected_item = self.itens_tela[i]
                 if mouse[1][0]:
                     if self.selected_item is not None:
-                        if self.selected_item == self.itens_tela[0]:
-                            self.go_to = c.PLAY
-                        elif self.selected_item == self.itens_tela[1]:
-                            self.go_to = c.LPHASE
-                        if self.selected_item == self.itens_tela[2]:
-                            self.go_to = c.CONFIG
-                        if self.selected_item == self.itens_tela[3]:
-                            self.go_to = c.IMPIKA
-                        if self.selected_item == self.itens_tela[4]:
-                            self.go_to = c.CLOSE
+                        return self.select_index
+        return None
+class inicial(menu):
+    def __init__(self):
+        menu.__init__(self)
+    def draw(self,screen):
+        menu.draw(self,screen)
+    def start(self):
+        self.itens = ['Play','Load','Configs','Credits','Get out']
+        self.title = None
+        self.itens_tela = []
+        self.itens_rect = []
+        self.selected_item = None
+        self.select_index = -1
+        self.can = True
+        self.go_to = None
+        title = self.font_text.render("JAAME", True, c.BLACK)
+        self.title = title
+        cont = 0
+        for i in self.itens:
+            itens = self.font_text.render(i,True,c.WHITE)
+            rect = itens.get_rect()
+            rect.left = 20
+            rect.top = 25+self.title.get_height()+itens.get_height()+cont
+            self.itens_rect.append(rect)
+            self.itens_tela.append(itens)
+            cont+=30
 
+    def event(self,mouse,key):
+        aux = menu.event(self,mouse,key)
+        if aux is not None:
+            if aux == 0:
+                self.go_to = c.PLAY
+            elif aux == 1:
+                self.go_to = c.LPHASE
+            elif aux == 2:
+                self.go_to = c.CONFIG
+            elif aux == 3:
+                self.go_to = c.IMPIKA
+            elif aux == 4:
+                self.go_to = c.CLOSE
 class pause():
     def __init__(self):
         self.itens = ['Back','Configs','Save Phase','Start Menu']
@@ -380,7 +378,7 @@ class load_phase():
    
 class config():
     def __init__(self):
-        self.itens = [f'Zoom {c.ZOOM_OPTIONS[c.SCREEN_ZOOM]}','Show Only Blocks with Collision','No Save Completed Phases','Back']
+        self.itens = [f'Zoom {c.ZOOM_OPTIONS[c.SCREEN_ZOOM]}','Show Only Blocks with Collision' if c.COLLISION_BLOCKS_ONLY else 'SHOW ALL BLOCKS','No Save Completed Phases' if not c.SAVE_COMPLETED_PHASES else 'Save Completed Phases','Back']
         self.font_text = pg.font.Font('resources/fonts/METROLOX.ttf',20)
         self.title = None
         self.itens_tela = []
