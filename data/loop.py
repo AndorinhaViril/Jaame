@@ -43,7 +43,7 @@ class Control(object):
         self.phase = phg.phase()
         self.animation = a.animation()
         self.plataform = None
-        self.menu = m.inicial()
+        self.menu = m.menu()
         self.pause = m.pause()
         self.loading = m.load_screen()
         self.loadphase = m.load_phase()
@@ -51,10 +51,7 @@ class Control(object):
         self.config = m.config()
         self.credits = m.credits()
         self.hud = m.hud()
-        self.debug = False
     def update(self):
-        if self.debug:
-            print('update: atualiza o q vai ser na tela')
         if self.state == c.PLAY:
             self.player.update(self.clock.get_fps(),self.plataform.things_collide)
             self.plataform.update(self.camera,self.player.collision.center,self.player.dead==c.ALIVE)
@@ -63,8 +60,6 @@ class Control(object):
         self.draw()
         self.state_update()
     def draw(self):
-        if self.debug:
-            print('draw: atualiza o q esta na tela')
         if self.state != c.PLAY:
             self.screen.fill(c.BGCOLOR)
         else:

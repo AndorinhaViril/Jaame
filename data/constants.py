@@ -1,8 +1,8 @@
 __author__ = "AndorinhaViril"
 '''
-variaveis de de uso mutuo
+variaveis de uso mutuo
 '''
-#configs
+#screen_configs
 SCREEN_ZOOM = .75
 ZOOM_OPTIONS = {.25:'4x',.5:'2x',.75:'1.5x',1:'STANDARD',1.5:'-1.5x',2:'-2x',3:'-3x'}
 DISPLAY_HEIGHT = 480#720#
@@ -11,7 +11,8 @@ DISPLAY_SIZE = (DISPLAY_WIDTH,DISPLAY_HEIGHT)
 SCREEN_HEIGHT = DISPLAY_HEIGHT*SCREEN_ZOOM
 SCREEN_WIDTH = DISPLAY_WIDTH*SCREEN_ZOOM
 SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
-
+print(SCREEN_SIZE)
+#general_configs
 FPS = 30
 TITLE = "Jaame"
 BLOCK_SIZE = (70,70)
@@ -19,7 +20,8 @@ DRAW_DISTANCE_X = 7 if SCREEN_ZOOM <= 1 else 7*SCREEN_ZOOM
 DRAW_DISTANCE_Y = 5 if SCREEN_ZOOM <= 1 else 5*SCREEN_ZOOM
 SAVE_COMPLETED_PHASES = False
 COLLISION_BLOCKS_ONLY = True
-#COLORS
+#__variables__
+#colors
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 REDA = (255,0,0,155)
@@ -46,7 +48,7 @@ MAX_SPEED = 15
 JUMP_FORCE = -17
 TERMINAL_SPEED = 37
 BULLETSPEED = 8
-#ScreenStates
+#screen_states
 MENU = 'menu'
 PAUSE = 'pause'
 SPHASE = 'savephase'
@@ -56,7 +58,7 @@ IMPIKA = 'creditos'
 LOAD = 'carregando'
 PLAY = 'jogando'
 CLOSE = 'sair'
-#PlayerStates
+#player_states
 STAND = 'standing'
 COWER = 'cower'
 WALK = 'walk'
@@ -67,7 +69,7 @@ JUMP = 'jump'
 CLIMB = 'climb'
 FALL = 'fall'
 ATTACK = 'atack'
-#PlayerStatesForDeath
+#player_states_for_death
 ALIVE = 'live'
 STOMPED = 'fall'
 SLASH = 'saw'
