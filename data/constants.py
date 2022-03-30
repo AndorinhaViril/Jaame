@@ -1,7 +1,7 @@
 __author__ = "AndorinhaViril"
-'''
-variaveis de uso mutuo
-'''
+
+#variaveis de uso mutuo
+
 #screen_configs
 SCREEN_ZOOM = .75
 ZOOM_OPTIONS = {.25:'4x',.5:'2x',.75:'1.5x',1:'STANDARD',1.5:'-1.5x',2:'-2x',3:'-3x'}
